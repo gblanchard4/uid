@@ -46,12 +46,16 @@ def main():
 	# Reverse primer
 	parser.add_argument('-rp','--rprimer',dest='rprimer', help='The reverse primer', required=True)
 
+	# Quality filter
+	parser.add_argument('-q','--qual',dest='qual', help='The quality score to filter. Keep reads with bases <= Q', required=True)
+
 	args = parser.parse_args()
 
 	forward_file = args.forward
 	reverse_file = args.reverse
 	forwad_primer = args.fprimer
 	reverse_primer = args.rprimer
+	qual = int(args.qual)
 
 	# Hardcoded primer values (See http://www.bioinformatics.org/sms/iupac.html)
 	v1_primer = "AGAGTTTGATYMTGGCTCAG"
@@ -125,7 +129,11 @@ def main():
 							reverse_UID_quality = reverse_record.letter_annotations["phred_quality"][:(len(reverse_UID)-1)]
 						# If the Q-score in the UID is 2 or less toss it (Probably not needed)
 
+<<<<<<< Updated upstream
 						if not False in [q>=11 for q in reverse_UID_quality]:
+=======
+						if not False in [q>=qual for q in reverse_UID_quality]:
+>>>>>>> Stashed changes
 							# Write our output, QA/QC done
 							# Forward file
 							# Add UID to end of description
@@ -138,13 +146,21 @@ def main():
 							uid_passing_filter += 1
 						# UID is low quality, toss it
 						else:
+<<<<<<< Updated upstream
 							if False in [q<11 for q in forward_UID_quality] and not forward_UID_quality:
+=======
+							if False in [q<qual for q in forward_UID_quality] and not forward_UID_quality:
+>>>>>>> Stashed changes
 								forward_UID_quality_total = forward_UID_quality_total + 1
 								try:
 									forward_min_quality[min(forward_UID_quality)] = forward_min_quality[min(forward_UID_quality)] +1
 								except KeyError:
 									forward_min_quality[min(forward_UID_quality)] = 1
+<<<<<<< Updated upstream
 							if False in [q<11 for q in reverse_UID_quality] and not reverse_UID_quality:
+=======
+							if False in [q<qual for q in reverse_UID_quality] and not reverse_UID_quality:
+>>>>>>> Stashed changes
 								reverse_UID_quality_total = reverse_UID_quality_total + 1
 								try:
 									reverse_min_quality[min(reverse_UID_quality)] = reverse_min_quality[min(reverse_UID_quality)] +1
