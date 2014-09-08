@@ -130,7 +130,11 @@ def main():
 						# If the Q-score in the UID is 2 or less toss it (Probably not needed)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 						if not False in [q>=11 for q in reverse_UID_quality]:
+=======
+						if not False in [q>=qual for q in reverse_UID_quality]:
+>>>>>>> Stashed changes
 =======
 						if not False in [q>=qual for q in reverse_UID_quality]:
 >>>>>>> Stashed changes
@@ -147,7 +151,11 @@ def main():
 						# UID is low quality, toss it
 						else:
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 							if False in [q<11 for q in forward_UID_quality] and not forward_UID_quality:
+=======
+							if False in [q<qual for q in forward_UID_quality] and not forward_UID_quality:
+>>>>>>> Stashed changes
 =======
 							if False in [q<qual for q in forward_UID_quality] and not forward_UID_quality:
 >>>>>>> Stashed changes
@@ -157,7 +165,11 @@ def main():
 								except KeyError:
 									forward_min_quality[min(forward_UID_quality)] = 1
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 							if False in [q<11 for q in reverse_UID_quality] and not reverse_UID_quality:
+=======
+							if False in [q<qual for q in reverse_UID_quality] and not reverse_UID_quality:
+>>>>>>> Stashed changes
 =======
 							if False in [q<qual for q in reverse_UID_quality] and not reverse_UID_quality:
 >>>>>>> Stashed changes
