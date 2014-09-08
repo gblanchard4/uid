@@ -59,8 +59,6 @@ def main():
 
 	v1_re = re_compiler(v1_primer)
 	v3_re = re_compiler(v3_primer)
-	#print v1_re
-	#print v3_re
 
 	# Open both the files for reading at the same time
 	forward_file_handle = open(forward_file, 'rU')
@@ -86,6 +84,9 @@ def main():
 	uid_length_12 = 0
 	forward_UID_quality_total = 0
 	reverse_UID_quality_total = 0
+	forward_min_quality = {}
+	reverse_min_quality = {}
+	uid_passing_filter = 0
 
 	# Zip both files together as a SeqIO object so we can easily process both files at once
 	for forward_record, reverse_record in izip(SeqIO.parse(forward_file_handle,"fastq"), SeqIO.parse(reverse_file_handle,"fastq")):
@@ -112,25 +113,43 @@ def main():
 							uid_length_12 += 1
 
 						# Get UID quality
-						forward_UID_quality = forward_record.letter_annotations["phred_quality"][:(len(forward_UID)-1)]
-						reverse_UID_quality = reverse_record.letter_annotations["phred_quality"][:(len(reverse_UID)-1)]
+						if len(forward_UID) == 0:
+							forward_UID_quality = forward_record.letter_annotations["phred_quality"][:len(forward_UID)]
+						else:
+							forward_UID_quality = forward_record.letter_annotations["phred_quality"][:(len(forward_UID)-1)]
+
+						if len(reverse_UID) == 0:
+
+							reverse_UID_quality = reverse_record.letter_annotations["phred_quality"][:len(reverse_UID)]
+						else:
+							reverse_UID_quality = reverse_record.letter_annotations["phred_quality"][:(len(reverse_UID)-1)]
 						# If the Q-score in the UID is 2 or less toss it (Probably not needed)
-						if not 2 in forward_UID_quality or not 2 in reverse_UID_quality:
+
+						if not False in [q>=11 for q in reverse_UID_quality]:
 							# Write our output, QA/QC done
 							# Forward file
 							# Add UID to end of description
 							forward_record.description = forward_record.description +' '+forward_UID
-							output_r1_handle.write(forward_record.format('fastq'))
+							#output_r1_handle.write(forward_record.format('fastq'))
 							# Reverse file
 							# Add UID to end of description
 							reverse_record.description = reverse_record.description +' '+reverse_UID
-							output_r2_handle.write(reverse_record.format('fastq'))
+							#output_r2_handle.write(reverse_record.format('fastq'))
+							uid_passing_filter += 1
 						# UID is low quality, toss it
 						else:
-							if 2 in forward_UID_quality:
+							if False in [q<11 for q in forward_UID_quality] and not forward_UID_quality:
 								forward_UID_quality_total = forward_UID_quality_total + 1
-							if 2 in reverse_UID_quality:
+								try:
+									forward_min_quality[min(forward_UID_quality)] = forward_min_quality[min(forward_UID_quality)] +1
+								except KeyError:
+									forward_min_quality[min(forward_UID_quality)] = 1
+							if False in [q<11 for q in reverse_UID_quality] and not reverse_UID_quality:
 								reverse_UID_quality_total = reverse_UID_quality_total + 1
+								try:
+									reverse_min_quality[min(reverse_UID_quality)] = reverse_min_quality[min(reverse_UID_quality)] +1
+								except KeyError:
+									reverse_min_quality[min(reverse_UID_quality)] = 1
 							pass
 					# UID not 10 or 12
 					else:
@@ -191,10 +210,14 @@ def main():
 	print "Reverse UID length distribution: %s" % reverse_uid_length
 	print "Total UID length distribution: %s" % total_uid_length
 	print "UID's of length 10: %s" % uid_length_10
+
 	print "UID's of length 12: %s" % uid_length_12
 	print "\n***UID Quality Filtering**"
 	print "Forward UID bad quality: %s" % forward_UID_quality_total
 	print "Reverse UID bad quality: %s" % reverse_UID_quality_total
+	print "Forward_UID_quality distribution %s" % forward_min_quality
+	print "Reverse_UID_quality distribution %s" % reverse_min_quality
+	print "UID Passing filter: %s" % uid_passing_filter
 
 	# Close down the files
 	forward_file_handle.close()
